@@ -1,5 +1,6 @@
 
 <h1>Daftar Mahasiswa</h1>
+<p>Project Praktikum Acara 11 - Versi 2</p>
 
 <form method="GET" action="/akademik10/public/mahasiswa">
     <input
