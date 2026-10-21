@@ -1,0 +1,15 @@
+
+# File sementara dan log
+*.log
+*.tmp
+
+# Cache editor
+.vscode/
+.idea/
+
+# File sistem
+.DS_Store
+Thumbs.db
+
+# File konfigurasi rahasia lokal
+.env
