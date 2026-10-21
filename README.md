@@ -1,2 +1,1 @@
-
-# Sistem Informasi Akademik - Versi Utama
+# Login Sistem Akademik
