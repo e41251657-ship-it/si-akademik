@@ -16,15 +16,31 @@ class Database
             $this->connection = new PDO(
                 $dsn,
                 $config['username'],
-                $config['password']
-            );
-
-            $this->connection->setAttribute(
-                PDO::ATTR_ERRMODE,
-                PDO::ERRMODE_EXCEPTION
+                $config['password'],
+                [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                ]
             );
         } catch (PDOException $e) {
-            die("Koneksi gagal: " . $e->getMessage());
+            $logDir = __DIR__ . '/../../storage/logs';
+
+            if (!is_dir($logDir)) {
+                mkdir($logDir, 0755, true);
+            }
+
+            error_log(
+                date('Y-m-d H:i:s') . ' - Koneksi database gagal: ' .
+                $e->getMessage() . PHP_EOL,
+                3,
+                $logDir . '/app.log'
+            );
+
+            throw new RuntimeException(
+                'Koneksi database gagal.',
+                0,
+                $e
+            );
         }
     }
 

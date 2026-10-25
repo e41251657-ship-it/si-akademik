@@ -13,3 +13,5 @@ Thumbs.db
 
 # File konfigurasi rahasia lokal
 .env
+# Jangan unggah log aplikasi
+/storage/logs/

@@ -14,7 +14,7 @@
 
     <p>Selamat datang Admin</p>
 
-    <a href="/akademik8/public/logout"
+    <a href="/akademik14/public/logout"
        class="btn btn-danger">
        Logout
     </a>

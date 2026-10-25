@@ -2,90 +2,92 @@
 
 session_start();
 
+error_reporting(E_ALL);
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
+
 require_once '../routes/web.php';
 
-$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+try {
+    $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+    $base = '/akademik14/public';
 
-$base = '/akademik10/public';
+    if (str_starts_with($uri, $base)) {
+        $uri = substr($uri, strlen($base));
 
-if (str_starts_with($uri, $base)) {
-
-    $uri = substr($uri, strlen($base));
-
-    if ($uri == '') {
-        $uri = '/';
+        if ($uri === '') {
+            $uri = '/';
+        }
     }
-}
 
-$method = $_SERVER['REQUEST_METHOD'];
+    $method = $_SERVER['REQUEST_METHOD'];
 
-/*
-|--------------------------------------------------------------------------
-| Middleware Auth
-|--------------------------------------------------------------------------
-*/
 if (
-    $uri === '/dashboard'
-    ||
-    $uri === '/mahasiswa'
-    ||
-    $uri === '/mahasiswa/create'
+    $uri === '/dashboard' ||
+    $uri === '/mahasiswa' ||
+    $uri === '/mahasiswa/create' ||
+    $uri === '/mahasiswa/edit' ||
+    $uri === '/mahasiswa/store' ||
+    $uri === '/mahasiswa/update' ||
+    $uri === '/mahasiswa/delete'
 ) {
-
     require_once '../app/Core/Middleware/AuthMiddleware.php';
 
     $middleware = new AuthMiddleware();
-
     $middleware->handle();
 }
 
-/*
-|--------------------------------------------------------------------------
-| Routing Biasa
-|--------------------------------------------------------------------------
-*/
-if (isset($routes[$method][$uri])) {
+    // Routing
+    if (isset($routes[$method][$uri])) {
+        [$controllerName, $action] = $routes[$method][$uri];
 
-    [$controllerName, $action] = $routes[$method][$uri];
+        require_once "../app/Controllers/$controllerName.php";
 
-    require_once "../app/Controllers/$controllerName.php";
+        if ($controllerName === 'MahasiswaController') {
+            require_once '../app/Core/Database.php';
+            require_once '../app/Repositories/MahasiswaRepository.php';
+            require_once '../app/Services/MahasiswaService.php';
 
-if ($controllerName === 'MahasiswaController') {
-    require_once "../app/Core/Database.php";
-    require_once "../app/Repositories/MahasiswaRepository.php";
+            $database = Database::getInstance();
+            $repository = new MahasiswaRepository($database);
+            $service = new MahasiswaService($repository);
 
-    $database = Database::getInstance();
-    $repository = new MahasiswaRepository($database);
-    $controller = new MahasiswaController($repository);
-} else {
-    $controller = new $controllerName();
-}
+            $controller = new MahasiswaController(
+                $repository,
+                $service
+            );
+        } else {
+            $controller = new $controllerName();
+        }
 
-$controller->$action();
-}
+        $controller->$action();
 
-/*
-|--------------------------------------------------------------------------
-| Routing Parameter
-|--------------------------------------------------------------------------
-*/
-elseif (preg_match('#^/mahasiswa/([0-9]+)$#', $uri, $matches)) {
+    } elseif (preg_match('#^/mahasiswa/([0-9]+)$#', $uri, $matches)) {
+        http_response_code(404);
+        echo '<h1>404 - Halaman tidak ditemukan</h1>';
 
-    require_once "../app/Controllers/MahasiswaController.php";
+    } else {
+        http_response_code(404);
+        echo '<h1>404 - Halaman tidak ditemukan</h1>';
+    }
 
-    $controller = new MahasiswaController();
+} catch (Throwable $e) {
+    // Simpan detail error untuk pemeriksaan pengembang
+    $logDir = __DIR__ . '/../storage/logs';
 
-    $controller->show($matches[1]);
-}
+    if (!is_dir($logDir)) {
+        mkdir($logDir, 0755, true);
+    }
 
-/*
-|--------------------------------------------------------------------------
-| 404
-|--------------------------------------------------------------------------
-*/
-else {
+    error_log(
+        date('Y-m-d H:i:s') . ' - ' .
+        $e . PHP_EOL,
+        3,
+        $logDir . '/app.log'
+    );
 
-    http_response_code(404);
-
-    echo "<h1>404 - Halaman tidak ditemukan</h1>";
+    // Tampilkan pesan aman kepada pengguna
+    http_response_code(500);
+    echo '<h1>Terjadi Kesalahan</h1>';
+    echo '<p>Maaf, permintaan belum dapat diproses. Silakan coba kembali.</p>';
 }

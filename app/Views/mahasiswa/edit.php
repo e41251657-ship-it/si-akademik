@@ -1,49 +1,33 @@
 
 <h1>Edit Mahasiswa</h1>
 
-<form method="POST" action="/akademik10/public/mahasiswa/update">
+<form method="POST" action="/akademik14/public/mahasiswa/update">
 
     <input type="hidden" name="id"
-           value="<?= htmlspecialchars((string) $mhs['id']) ?>">
+           value="<?= htmlspecialchars((string) $mhs['id'], ENT_QUOTES, 'UTF-8') ?>">
 
     NIM:<br>
-    <input type="text" name="nim"
-           value="<?= htmlspecialchars($mhs['nim']) ?>" required>
+    <input type="text" name="nim" maxlength="20"
+           value="<?= htmlspecialchars($mhs['nim'], ENT_QUOTES, 'UTF-8') ?>" required>
     <br><br>
 
     Nama:<br>
-    <input type="text" name="nama"
-           value="<?= htmlspecialchars($mhs['nama']) ?>" required>
+    <input type="text" name="nama" maxlength="100"
+           value="<?= htmlspecialchars($mhs['nama'], ENT_QUOTES, 'UTF-8') ?>" required>
     <br><br>
 
     Email:<br>
-    <input type="email" name="email"
-           value="<?= htmlspecialchars($mhs['email']) ?>" required>
-    <br><br>
-
-    Prodi ID:<br>
-    <input type="number" name="prodi_id"
-           value="<?= htmlspecialchars((string) $mhs['prodi_id']) ?>" required>
+    <input type="email" name="email" maxlength="100"
+           value="<?= htmlspecialchars($mhs['email'], ENT_QUOTES, 'UTF-8') ?>" required>
     <br><br>
 
     Angkatan:<br>
-    <input type="number" name="angkatan"
-           value="<?= htmlspecialchars((string) $mhs['angkatan']) ?>" required>
-    <br><br>
-
-    Status:<br>
-    <select name="status">
-        <option value="aktif" <?= $mhs['status'] === 'aktif' ? 'selected' : '' ?>>
-            Aktif
-        </option>
-        <option value="cuti" <?= $mhs['status'] === 'cuti' ? 'selected' : '' ?>>
-            Cuti
-        </option>
-        <option value="lulus" <?= $mhs['status'] === 'lulus' ? 'selected' : '' ?>>
-            Lulus
-        </option>
-    </select>
+    <input type="number" name="angkatan" min="1901" max="2026"
+           value="<?= htmlspecialchars((string) $mhs['angkatan'], ENT_QUOTES, 'UTF-8') ?>" required>
     <br><br>
 
     <button type="submit">Update</button>
 </form>
+
+<br>
+<a href="/akademik14/public/mahasiswa">Kembali</a>

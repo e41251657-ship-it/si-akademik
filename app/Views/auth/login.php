@@ -29,7 +29,7 @@
 
 <?php endif; ?>
 
-            <form method="POST" action="/akademik10/public/login">
+            <form method="POST" action="/akademik14/public/login">
 
                 <div class="mb-3">
                     <label class="form-label">Username</label>

@@ -12,92 +12,98 @@ class MahasiswaRepository
         $this->db = $database->getConnection();
     }
 
-    public function all()
+    public function all(): array
     {
-        $stmt = $this->db->query("
-            SELECT m.*, p.nama AS prodi_nama
-            FROM mahasiswa m
-            JOIN prodi p ON m.prodi_id = p.id
-        ");
+        $stmt = $this->db->query(
+            "SELECT * FROM mahasiswa ORDER BY id DESC"
+        );
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function find($id)
+    public function find($id): array|false
     {
-        $stmt = $this->db->prepare("
-            SELECT * FROM mahasiswa WHERE id = :id
-        ");
+        $stmt = $this->db->prepare(
+            "SELECT * FROM mahasiswa WHERE id = :id"
+        );
 
         $stmt->execute(['id' => $id]);
 
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function create($data)
+    public function create(array $data): bool
     {
-        $stmt = $this->db->prepare("
-            INSERT INTO mahasiswa
-            (nim, nama, email, prodi_id, angkatan, status)
-            VALUES
-            (:nim, :nama, :email, :prodi_id, :angkatan, :status)
-        ");
+        $stmt = $this->db->prepare(
+            "INSERT INTO mahasiswa (nim, nama, email, angkatan)
+             VALUES (:nim, :nama, :email, :angkatan)"
+        );
 
         return $stmt->execute([
             'nim' => $data['nim'],
             'nama' => $data['nama'],
             'email' => $data['email'],
-            'prodi_id' => $data['prodi_id'],
-            'angkatan' => $data['angkatan'],
-            'status' => $data['status']
+            'angkatan' => $data['angkatan']
         ]);
     }
 
-    public function update($id, $data)
+    public function update($id, array $data): bool
     {
-        $stmt = $this->db->prepare("
-            UPDATE mahasiswa
-            SET nim = :nim,
-                nama = :nama,
-                email = :email,
-                prodi_id = :prodi_id,
-                angkatan = :angkatan,
-                status = :status
-            WHERE id = :id
-        ");
+        $stmt = $this->db->prepare(
+            "UPDATE mahasiswa
+             SET nim = :nim,
+                 nama = :nama,
+                 email = :email,
+                 angkatan = :angkatan
+             WHERE id = :id"
+        );
 
         return $stmt->execute([
             'id' => $id,
             'nim' => $data['nim'],
             'nama' => $data['nama'],
             'email' => $data['email'],
-            'prodi_id' => $data['prodi_id'],
-            'angkatan' => $data['angkatan'],
-            'status' => $data['status']
+            'angkatan' => $data['angkatan']
         ]);
     }
 
-    public function delete($id)
+    public function delete($id): bool
     {
-        $stmt = $this->db->prepare("
-            DELETE FROM mahasiswa WHERE id = :id
-        ");
+        $stmt = $this->db->prepare(
+            "DELETE FROM mahasiswa WHERE id = :id"
+        );
 
         return $stmt->execute(['id' => $id]);
     }
 
-    public function search($keyword)
+    public function existsByNim(string $nim, ?int $excludeId = null): bool
     {
-        $stmt = $this->db->prepare("
-            SELECT m.*, p.nama AS prodi_nama
-            FROM mahasiswa m
-            JOIN prodi p ON m.prodi_id = p.id
-            WHERE m.nama LIKE :keyword
-               OR m.nim LIKE :keyword
-        ");
+        $sql = "SELECT COUNT(*) FROM mahasiswa WHERE nim = :nim";
+        $params = ['nim' => $nim];
+
+        if ($excludeId !== null) {
+            $sql .= " AND id != :exclude_id";
+            $params['exclude_id'] = $excludeId;
+        }
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+
+        return (int) $stmt->fetchColumn() > 0;
+    }
+
+    public function search(string $keyword): array
+    {
+        $stmt = $this->db->prepare(
+            "SELECT * FROM mahasiswa
+             WHERE nama LIKE :nama OR nim LIKE :nim"
+        );
+
+        $keyword = "%{$keyword}%";
 
         $stmt->execute([
-            'keyword' => "%$keyword%"
+            'nama' => $keyword,
+            'nim' => $keyword
         ]);
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

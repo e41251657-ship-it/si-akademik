@@ -1,34 +1,25 @@
 
 <h1>Tambah Mahasiswa</h1>
 
-<form method="POST" action="/akademik10/public/mahasiswa/store">
+<form method="POST" action="/akademik14/public/mahasiswa/store">
     NIM:<br>
-    <input type="text" name="nim" required>
+    <input type="text" name="nim" maxlength="20" required>
     <br><br>
 
     Nama:<br>
-    <input type="text" name="nama" required>
+    <input type="text" name="nama" maxlength="100" required>
     <br><br>
 
     Email:<br>
-    <input type="email" name="email" required>
-    <br><br>
-
-    Prodi ID:<br>
-    <input type="number" name="prodi_id" required>
+    <input type="email" name="email" maxlength="100" required>
     <br><br>
 
     Angkatan:<br>
-    <input type="number" name="angkatan" required>
-    <br><br>
-
-    Status:<br>
-    <select name="status">
-        <option value="aktif">Aktif</option>
-        <option value="cuti">Cuti</option>
-        <option value="lulus">Lulus</option>
-    </select>
+    <input type="number" name="angkatan" min="1901" max="2026" required>
     <br><br>
 
     <button type="submit">Simpan</button>
 </form>
+
+<br>
+<a href="/akademik14/public/mahasiswa">Kembali</a>
